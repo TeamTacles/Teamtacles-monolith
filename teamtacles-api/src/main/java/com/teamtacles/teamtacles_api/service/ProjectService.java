@@ -15,7 +15,6 @@ import com.teamtacles.teamtacles_api.exception.InvalidTaskStateException;
 import com.teamtacles.teamtacles_api.exception.ResourceNotFoundException;
 import com.teamtacles.teamtacles_api.mapper.PagedResponseMapper;
 import com.teamtacles.teamtacles_api.model.Project;
-import com.teamtacles.teamtacles_api.model.Task;
 import com.teamtacles.teamtacles_api.model.User;
 import com.teamtacles.teamtacles_api.model.UserAuthenticated;
 import com.teamtacles.teamtacles_api.model.enums.ERole;

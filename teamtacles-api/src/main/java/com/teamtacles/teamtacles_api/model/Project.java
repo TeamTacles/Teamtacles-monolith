@@ -48,9 +48,9 @@ public class Project{
     @Size(max = 50)
     private String description;
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference(value = "project-task")
-    private List<Task> tasks;
+    // @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    // @JsonManagedReference(value = "project-task")
+    // private List<Task> tasks;
 
     // Criador do Projeto - Owner
     @ManyToOne(optional = false)

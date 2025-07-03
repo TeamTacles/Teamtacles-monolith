@@ -2,7 +2,6 @@ package com.teamtacles.teamtacles_api.dto.response;
 
 import java.util.List;
 
-import com.teamtacles.teamtacles_api.model.Task;
 import com.teamtacles.teamtacles_api.model.User;
 
 import io.swagger.v3.oas.annotations.media.Schema;

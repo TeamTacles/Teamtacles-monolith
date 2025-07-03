@@ -2,7 +2,6 @@ package com.teamtacles.teamtacles_api.dto.response;
 
 import java.util.List;
 
-import com.teamtacles.teamtacles_api.model.Task;
 import com.teamtacles.teamtacles_api.model.User;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -22,9 +21,6 @@ public class ProjectResponseDTO {
 
     @Schema(description = "A brief description of the project.", example = "Developing and integrating the user authentication module.")
     private String description;
-
-    @Schema(description = "A list of tasks associated with this project.", type = "array")
-    private List<TaskResponseDTO> tasks;
 
     @Schema(description = "The user who created this project.")
     private UserResponseDTO creator;

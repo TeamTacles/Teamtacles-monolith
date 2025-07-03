@@ -145,4 +145,19 @@ public class UserService {
         Page<User> users = userRepository.findAll(pageable);
         return pagedResponseMapper.toPagedResponse(users, UserResponseDTO.class);
     }
+
+    /**
+     * NOVO MÉTODO: Recupera um usuário pelo seu ID.
+     * Usado para fornecer dados a outros serviços ou para operações administrativas.
+     *
+     * @param id O ID do usuário a ser buscado.
+     * @return Um UserResponseDTO com os dados do usuário.
+     * @throws ResourceNotFoundException se o usuário não for encontrado.
+     */
+    public UserResponseDTO getUserById(Long id) {
+        User user = userRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("User Not Found with ID: " + id));
+
+        return modelMapper.map(user, UserResponseDTO.class);
+    }
 }

@@ -23,7 +23,6 @@ import com.teamtacles.teamtacles_api.dto.page.PagedResponse;
 import com.teamtacles.teamtacles_api.dto.request.ProjectRequestDTO;
 import com.teamtacles.teamtacles_api.dto.request.ProjectRequestPatchDTO;
 import com.teamtacles.teamtacles_api.dto.response.ProjectResponseDTO;
-import com.teamtacles.teamtacles_api.dto.response.TaskResponseDTO;
 import com.teamtacles.teamtacles_api.model.UserAuthenticated;
 import com.teamtacles.teamtacles_api.service.ProjectService;
 

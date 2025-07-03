@@ -62,9 +62,9 @@ public class User{
     private String password;
 
     // tasks que pertencem a ele
-    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference(value = "user-task")
-    private List<Task> task = new ArrayList<>();
+    // @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    // @JsonManagedReference(value = "user-task")
+    // private List<Task> task = new ArrayList<>();
 
     // projetos que ele criou
     @OneToMany(mappedBy = "creator")

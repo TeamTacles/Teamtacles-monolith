@@ -1,6 +1,8 @@
 package com.teamtacles.teamtacles_api.service;
 
 import java.time.Instant;
+import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Service;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
@@ -38,12 +40,17 @@ public class JwtService {
         Instant now = Instant.now();
         long expire = 3600L;
 
+        String scope = user.getRoles().stream()
+                           .map(role -> "ROLE_" + role.getRoleName().name())
+                           .collect(Collectors.joining(" "));
+
         var claims = JwtClaimsSet.builder()
                 .issuer("spring-security")
                 .issuedAt(now)
                 .expiresAt(now.plusSeconds(expire))
                 .subject(user.getUserName())
                 .claim("userId", user.getUserId())
+                .claim("scope", scope)
                 .build();
 
         return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();

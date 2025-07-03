@@ -118,4 +118,23 @@ public class UserController {
         PagedResponse<UserResponseDTO> users = userService.getAllUsers(pageable);
         return ResponseEntity.status(HttpStatus.OK).body(users);
     }
+
+    /**
+     * NOVO ENDPOINT: Recupera um usuário pelo ID.
+     * Este endpoint é essencial para a comunicação entre serviços.
+     *
+     * @param id_user O ID do usuário a ser recuperado.
+     * @return ResponseEntity contendo o UserResponseDTO.
+     */
+    @Operation(summary = "Get user by ID", description = "Retrieves a specific user by their ID. Accessible to authenticated users for inter-service communication.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Successfully retrieved user details."),
+        @ApiResponse(responseCode = "401", description = "Unauthorized: Authentication required or invalid token."),
+        @ApiResponse(responseCode = "404", description = "Not Found: User with the specified ID was not found.")
+    })
+    @GetMapping("/{id_user}")
+    public ResponseEntity<UserResponseDTO> getUserById(@PathVariable("id_user") Long id_user) {
+        UserResponseDTO userResponseDTO = userService.getUserById(id_user);
+        return ResponseEntity.ok(userResponseDTO);
+    }
 }
