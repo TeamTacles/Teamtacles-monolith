@@ -1,0 +1,10 @@
+{
+  "java.configuration.updateBuildConfiguration": "interactive",
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "never"
+  },
+  "liveshare.allowGuestWorkspaceAccess": true,
+  "liveshare.allowGuestDebugControl": true,
+  "liveshare.languages.allowGuestCommandControl": true,
+  "java.compile.nullAnalysis.mode": "automatic"
+}
