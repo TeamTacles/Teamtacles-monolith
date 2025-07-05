@@ -1,6 +1,11 @@
 package com.teamtacles.teamtacles_api.project;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -20,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -29,6 +35,7 @@ import com.teamtacles.teamtacles_api.dto.request.ProjectRequestPatchDTO;
 import com.teamtacles.teamtacles_api.model.Project;
 import com.teamtacles.teamtacles_api.repository.ProjectRepository;
 import com.teamtacles.teamtacles_api.repository.UserRepository;
+import com.teamtacles.teamtacles_api.service.TaskServiceClient;
 import com.teamtacles.teamtacles_api.util.TestDataAux;
 
 @SpringBootTest
@@ -49,6 +56,9 @@ public class ProjectControllerTest {
     
     @Autowired
     private TestDataAux testDataAux;
+
+    @MockBean 
+    private TaskServiceClient taskServiceApiClient;
 
     @BeforeEach
     void setUpEnvironment() {
@@ -313,23 +323,32 @@ public class ProjectControllerTest {
 
     @Test
     @DisplayName("Should delete project as Admin with 204 NO CONTENT")
-    void testDeleteTask_WhenAdmin_ShouldReturn204() throws Exception {
+    void testDeleteProject_WhenAdmin_ShouldReturn204() throws Exception {
         Project savedProject = createUserOwnerProject();
 
-        mockMvc.perform(delete("/api/project/{project_id}", savedProject.getId())
+        doNothing().when(taskServiceApiClient).deleteAllTasksFromProject(anyLong(), anyString());
+
+        mockMvc.perform(delete("/api/project/{projectId}", savedProject.getId())
                 .header("Authorization", "Bearer " + testDataAux.getAdminUserToken()))
                 .andExpect(status().isNoContent());
+        
+        verify(taskServiceApiClient).deleteAllTasksFromProject(eq(savedProject.getId()), anyString());
     }
 
     @Test
     @DisplayName("Should delete project as user owner with 204 NO CONTENT")
-    void testDeleteTask_WhenUserOwner_ShouldReturn204() throws Exception {
+    void testDeleteProject_WhenUserOwner_ShouldReturn204() throws Exception {
         Project savedProject = createUserOwnerProject();
 
-        mockMvc.perform(delete("/api/project/{project_id}", savedProject.getId())
-                .header("Authorization", "Bearer " + testDataAux.getAdminUserToken()))
+        doNothing().when(taskServiceApiClient).deleteAllTasksFromProject(anyLong(), anyString());
+
+        mockMvc.perform(delete("/api/project/{projectId}", savedProject.getId())
+                .header("Authorization", "Bearer " + testDataAux.getNormalUserToken()))
                 .andExpect(status().isNoContent());
+
+        verify(taskServiceApiClient).deleteAllTasksFromProject(eq(savedProject.getId()), anyString());
     }
+
 
     @Test
     @DisplayName("Should not delete project when not the creator with 403 FORBIDDEN")

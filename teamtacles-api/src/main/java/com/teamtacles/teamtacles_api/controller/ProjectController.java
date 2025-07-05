@@ -30,6 +30,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PutMapping;
 
@@ -201,10 +202,30 @@ public class ProjectController {
         @ApiResponse(responseCode = "500", description = "Internal Server Error: An unexpected error occurred.")
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTask(@PathVariable @Parameter(description = "Project ID") Long id, 
-        @Parameter(hidden = true) @AuthenticationPrincipal UserAuthenticated authenticatedUser
+    public ResponseEntity<Void> deleteProject(@PathVariable @Parameter(description = "Project ID") Long id, 
+        @Parameter(hidden = true) @AuthenticationPrincipal UserAuthenticated authenticatedUser,
+        HttpServletRequest request
     ){
-        projectService.deleteProject(id, authenticatedUser.getUser());
+        String token = getTokenJwt(request);
+        projectService.deleteProject(id, authenticatedUser.getUser(), token);
         return ResponseEntity.noContent().build();
+    }
+    
+    /**
+     * Extracts the raw JWT string from the Authorization header of an HTTP request.
+     * This helper method expects the standard "Bearer " prefix and safely handles cases
+     * where the header is missing or in an invalid format.
+     *
+     * @param request The incoming HttpServletRequest from which to extract the header.
+     * @return The JWT token string without the "Bearer " prefix, or null if the
+     * header is not present or does not start with "Bearer ".
+     */
+    private String getTokenJwt(HttpServletRequest request){
+        String authHeader = request.getHeader("Authorization");
+        String token = null;
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            token = authHeader.substring(7);
+        } 
+        return token;
     }
 }

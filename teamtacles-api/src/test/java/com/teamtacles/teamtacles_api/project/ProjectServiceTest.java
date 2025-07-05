@@ -3,7 +3,11 @@ package com.teamtacles.teamtacles_api.project;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -41,10 +45,14 @@ import com.teamtacles.teamtacles_api.repository.ProjectRepository;
 import com.teamtacles.teamtacles_api.repository.RoleRepository;
 import com.teamtacles.teamtacles_api.repository.UserRepository;
 import com.teamtacles.teamtacles_api.service.ProjectService;
+import com.teamtacles.teamtacles_api.service.TaskServiceClient;
 
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles("test")
 public class ProjectServiceTest {
+
+    @Mock
+    private TaskServiceClient taskServiceClient;
 
     @Mock
     private ProjectRepository projectRepository; 
@@ -362,18 +370,18 @@ public class ProjectServiceTest {
     @DisplayName("Should delete project when user is the owner")
     void shouldDeleteProjectWhenUserIsOwner() {
         Long projectId = 1L;
-
+        String mockToken = "mock-jwt-token";
         Project existingProject = new Project();
         existingProject.setId(projectId);
-        existingProject.setCreator(user4);
-        existingProject.setTeam(List.of(user4, user1));
-        existingProject.setTitle("Old title");
-        existingProject.setDescription("Old description");
+        existingProject.setCreator(user4); // user4 é o dono
 
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(existingProject));
+        doNothing().when(taskServiceClient).deleteAllTasksFromProject(eq(projectId), eq(mockToken));
+        doNothing().when(projectRepository).delete(existingProject);
 
-        projectService.deleteProject(projectId, user4);
+        projectService.deleteProject(projectId, user4, mockToken);
 
+        verify(taskServiceClient).deleteAllTasksFromProject(projectId, mockToken);
         verify(projectRepository).delete(existingProject);
     }
 
@@ -381,18 +389,18 @@ public class ProjectServiceTest {
     @DisplayName("Should delete project when user is the ADM")
     void shouldDeleteProjectWhenUserIsADM() {
         Long projectId = 1L;
-
+        String mockToken = "mock-jwt-token-admin";
         Project existingProject = new Project();
         existingProject.setId(projectId);
-        existingProject.setCreator(user4);
-        existingProject.setTeam(List.of(user4, user1));
-        existingProject.setTitle("Old title");
-        existingProject.setDescription("Old description");
+        existingProject.setCreator(user4); // Criado por outro usuário
 
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(existingProject));
+        doNothing().when(taskServiceClient).deleteAllTasksFromProject(eq(projectId), eq(mockToken));
+        doNothing().when(projectRepository).delete(existingProject);
 
-        projectService.deleteProject(projectId, userADM);
+        projectService.deleteProject(projectId, userADM, mockToken);
 
+        verify(taskServiceClient).deleteAllTasksFromProject(projectId, mockToken);
         verify(projectRepository).delete(existingProject);
     }
 
@@ -400,17 +408,20 @@ public class ProjectServiceTest {
     @DisplayName("Should throw exception when non-owner or non-ADM tries to delete project")
     void shouldThrowWhenNonOwnerOrADMDeletesProject() {
         Long projectId = 1L;
-
+        String mockToken = "mock-jwt-token-invalid";
         Project existingProject = new Project();
         existingProject.setId(projectId);
-        existingProject.setCreator(user1);
-        existingProject.setTeam(List.of(user1, user2));
-        existingProject.setTitle("Old title");
-        existingProject.setDescription("Old description");
+        existingProject.setCreator(user1); // O dono é o user1
 
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(existingProject));
         
-        // O criador desse projeto é o user1, então passandp CreateUser lançar a exceção
-        assertThrows(AccessDeniedException.class, () -> projectService.deleteProject(projectId, user4));
+        // O user4 não é dono nem admin, então deve falhar
+        assertThrows(AccessDeniedException.class, () -> {
+            projectService.deleteProject(projectId, user4, mockToken);
+        });
+
+        // Garante que a chamada ao microsserviço NUNCA foi feita se a permissão falhou
+        verify(taskServiceClient, never()).deleteAllTasksFromProject(anyLong(), anyString());
+        verify(projectRepository, never()).delete(any(Project.class));
     }
 }

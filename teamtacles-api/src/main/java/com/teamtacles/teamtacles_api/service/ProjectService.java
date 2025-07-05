@@ -41,14 +41,16 @@ public class ProjectService {
     
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
+    private final TaskServiceClient taskServiceClient;
     private final ModelMapper modelMapper;
     private final PagedResponseMapper pagedResponseMapper;
 
-    public ProjectService(ProjectRepository projectRepository, UserRepository userRepository, ModelMapper modelMapper, PagedResponseMapper pagedResponseMapper){
+    public ProjectService(ProjectRepository projectRepository, UserRepository userRepository, ModelMapper modelMapper, PagedResponseMapper pagedResponseMapper, TaskServiceClient taskServiceClient){
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
         this.modelMapper = modelMapper;
         this.pagedResponseMapper = pagedResponseMapper;
+        this.taskServiceClient = taskServiceClient;
     }
 
     /**
@@ -183,12 +185,13 @@ public class ProjectService {
      * @param id The unique ID of the project to delete.
      * @param userFromToken The authenticated User attempting to delete the project.
      */
-    public void deleteProject(Long id, User userFromToken){
+    public void deleteProject(Long id, User userFromToken, String token){
         Project project = projectRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("project Not found."));
-            // Chama o método que verifica se o usuário é dono da tarefa ou se é um administrador
+
         ensureUserCanAccessProject(project, userFromToken);
-        
+
+        taskServiceClient.deleteAllTasksFromProject(project.getId(), token);
         projectRepository.delete(project);
     }
 
