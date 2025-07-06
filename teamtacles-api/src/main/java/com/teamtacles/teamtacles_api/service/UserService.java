@@ -147,13 +147,17 @@ public class UserService {
     }
 
     /**
-     * NOVO MÉTODO: Recupera um usuário pelo seu ID.
-     * Usado para fornecer dados a outros serviços ou para operações administrativas.
-     *
-     * @param id O ID do usuário a ser buscado.
-     * @return Um UserResponseDTO com os dados do usuário.
-     * @throws ResourceNotFoundException se o usuário não for encontrado.
-     */
+
+    Retrieves a user by their ID.
+
+    Used to provide data to other services or for administrative operations.
+
+    @param id The ID of the user to be fetched.
+
+    @return A UserResponseDTO with the user's data.
+
+    @throws ResourceNotFoundException if the user is not found.
+    */
     public UserResponseDTO getUserById(Long id) {
         User user = userRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("User Not Found with ID: " + id));
